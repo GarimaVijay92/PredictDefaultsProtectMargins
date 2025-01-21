@@ -66,6 +66,7 @@ Incorrect Defaults: Losses at 5x loan amounts.
 Denied Loans: 0
 
 Equation:
+
 denied_correctly = 0 # No profit or loss for denying defaults
 denied_incorrectly = - 5 * 0.05 * disbursement_gross[false_negative].sum() # Loss for incorrectly granting defaults
 approved_incorectly = 0 # No profit or loss for denying Paid in Full
