@@ -33,6 +33,7 @@ Data cleaning:
 
 
 New Fields
+
 10. SBA Portion Calculation: A new field (SBA_portion) was created to represent the percentage of the approved gross amount covered by SBA.
 
 11. Recession Indicator: A new field (recession) was created to flag loans with a maturity date between 2007-12-01 and 2009-06-30 as occurring during the recession.
@@ -53,3 +54,54 @@ New Fields
 
 19. Job Created - Group businesses by the number of jobs created
 Logic: 0: No or minimal job creation (0–1 jobs). 1: Small job creation (2–10 jobs). 2: Moderate job creation (11–20 jobs). 3: Significant job creation (more than 20 jobs).
+
+# Data Sampling
+Stratified sampling was employed to reduce the dataset size while preserving the distribution of loan outcomes and critical features that were highly imbalanced. This approach ensures that the sample maintains the same proportions of key variables as in the original dataset, which is particularly important when dealing with imbalanced data, like loan defaults (MIS_Status) and other influential categorical variables.
+
+# Defined Business Metric
+We developed a custom business metric to evaluate financial impact:
+
+Correct Approvals: 5% profit of loan amounts.
+Incorrect Defaults: Losses at 5x loan amounts.
+Denied Loans: 0
+
+Equation:
+denied_correctly = 0 # No profit or loss for denying defaults
+denied_incorrectly = - 5 * 0.05 * disbursement_gross[false_negative].sum() # Loss for incorrectly granting defaults
+approved_incorectly = 0 # No profit or loss for denying Paid in Full
+approved_correctly = (0.05 * disbursement_gross[true_negative]).sum() # Profit for correctly granting Paid in Full
+total_profit = denied_correctly + denied_incorrectly + approved_incorectly + approved_correctly
+
+The make_scorer function in scikit-learn is used to create a custom scoring function that allowed us to define a performance metric tailored to the specific needs. business_scorer = make_scorer(business_metric).set_score_request(disbursement_gross=True)
+
+To further optimize profitability, TunedThresholdClassifierCV from Scikit Learn is used to fine-tune the decision threshold based on a business-specific metric. This approach helped identify the optimal threshold, balancing sensitivity and profitability.
+
+# Output and Explanation
+We chose CatBoost model as the final model which effectively predicts default probabilities for small business loans, balancing accuracy and profitability.
+
+The tuned threshold of 0.41 delivers higher sensitivity (93.22%), improving default identification and reducing losses.
+
+Profitability increased to $7,588.25 on average, demonstrating its practical utility for decision-making.
+
+Trade-Off Analysis The selection of a tuned threshold (0.41) was guided by the primary goal of maximizing profitability while maintaining strong predictive performance. This adjustment in the decision threshold demonstrates a deliberate trade-off between key metrics such as sensitivity, precision, and specificity to align the model's output with business objectives.
+
+Prioritizing Sensitivity
+Sensitivity, also known as the true positive rate, measures the model’s ability to correctly identify loan defaults.
+
+A higher sensitivity at the tuned threshold (93.22% vs. 91.51% at 0.5) indicates that the model is better at flagging loans that are likely to default.
+
+This improvement is crucial because missed defaults (false negatives) have the largest financial impact, representing loans that are incorrectly approved and result in substantial losses (5x the loan amount in this scenario).
+
+By increasing sensitivity, the model effectively reduces the occurrence of false negatives, minimizing these high-cost mistakes. This prioritization directly translates into greater financial gains, as evidenced by the increase in the business metric (profit improved by $33.27 on average).
+
+Accepting Reductions in Precision and Specificity
+
+Precision measures how many predicted defaults were actual defaults. At the tuned threshold, precision dropped slightly from 70.29% to 66.09%, reflecting a higher number of false positives (loans flagged as defaults but not actually defaulting).
+
+Specificity, which measures the ability to correctly identify non-defaults (loans likely to be fully paid), also saw a minor decrease from 91.91% to 89.99%.
+
+These reductions indicate that the model occasionally misclassifies some loans as defaults that might have been successfully repaid. However, the financial impact of such false positives is negligible compared to the cost of missed defaults. Denying these loans has no associated profit or loss in the business metric, making this trade-off acceptable.
+
+CatBoost clearly stands out with an exceptional ROC-AUC of 0.9713, indicating outstanding model performance.
+It outperforms other models not just in ROC-AUC, but also delivers the highest profitability of 7,588.25 dollars, making it the best for business purposes.
+It balances high accuracy, good sensitivity, and high specificity, which means it is both effective and reliable for predicting defaults without many false positives.
