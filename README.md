@@ -1,5 +1,5 @@
 # Predict Defaults, Protect Margins
-This project focuses on building a predictive model to estimate the Probability of Default (PD) for small business loans using historical data from the U.S. Small Business Administration (SBA). The initiative supports regulatory compliance under the Basel Framework &amp; aids banks in optimizing loan approvals for profitability &; financial stability. This project was done as a part of California State University wide competition in 10 days.
+This project focuses on building a predictive model to estimate the Probability of Default (PD) for small business loans using historical data from the U.S. Small Business Administration (SBA). The initiative supports regulatory compliance under the Basel Framework &amp; aids banks in optimizing loan approvals for profitability & financial stability. This project was done as a part of California State University wide competition in 10 days.
 # General Info
 Small business loans inherently carry higher risk, so the aim of the project was to make accurate PD predictions essential for:
 
