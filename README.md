@@ -1,14 +1,16 @@
 # Predict Defaults, Protect Margins
-This project focuses on building a predictive model to estimate the Probability of Default (PD) for small business loans using historical data from the U.S. Small Business Administration (SBA). The initiative supports regulatory compliance under the Basel Framework &amp; aids banks in optimizing loan approvals for profitability &amp; financial stability. This project was done as a part of California State University wide competition in 10 days.
+This project focuses on building a predictive model to estimate the Probability of Default (PD) for small business loans using historical data from the U.S. Small Business Administration (SBA). The initiative supports regulatory compliance under the Basel Framework &amp; aids banks in optimizing loan approvals for profitability &; financial stability. This project was done as a part of California State University wide competition in 10 days.
 # General Info
 Small business loans inherently carry higher risk, so the aim of the project was to make accurate PD predictions essential for:
 
 1. Bank Decision-Making: Reducing financial losses and determining suitable loan terms.
 2. Regulatory Compliance: Meeting Basel III Endgame's capital adequacy standards.
-3. Profit Maximization: Optimizing returns while minimizing defaults. Using SBA data spanning 1987–2014 (899,164 records, 27 features), we addressed challenges such as class imbalance, missing values, and data inconsistencies. A stratified sampling approach and robust data preprocessing pipelines ensured effective analysis and modeling. The CatBoost model emerged as the best performer, delivering an average profit of $7,588.25 with a custom-tuned threshold (0.41). It demonstrated balanced performance across sensitivity, specificity, and profitability, providing an effective tool for loan decision-making.
+3. Profit Maximization: Optimizing returns while minimizing defaults. Developed custom metric to gauge the financial impact of wrong decisions.
+  
+Using SBA data spanning 1987–2014 (899,164 records, 27 features), we addressed challenges such as class imbalance, missing values, and data inconsistencies. A stratified sampling approach and robust data preprocessing pipelines ensured effective analysis and modeling. The CatBoost model emerged as the best performer, delivering an average profit of $7,588.25 with a custom-tuned threshold (0.41). It demonstrated balanced performance across sensitivity, specificity, and profitability, providing an effective tool for loan decision-making.
 
-# Tools
-Jupyter Notebook 
+# Language
+Python 
 
 # Data Preparation
 Data cleaning:
@@ -68,9 +70,13 @@ Denied Loans: 0
 Equation:
 
 denied_correctly = 0 # No profit or loss for denying defaults
+
 denied_incorrectly = - 5 * 0.05 * disbursement_gross[false_negative].sum() # Loss for incorrectly granting defaults
+
 approved_incorectly = 0 # No profit or loss for denying Paid in Full
+
 approved_correctly = (0.05 * disbursement_gross[true_negative]).sum() # Profit for correctly granting Paid in Full
+
 total_profit = denied_correctly + denied_incorrectly + approved_incorectly + approved_correctly
 
 The make_scorer function in scikit-learn is used to create a custom scoring function that allowed us to define a performance metric tailored to the specific needs. business_scorer = make_scorer(business_metric).set_score_request(disbursement_gross=True)
